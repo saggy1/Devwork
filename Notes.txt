@@ -1,0 +1,35 @@
+Use the given jar file for PDF specific library in Java
+
+Use the package.json to restore npm dependencies
+
+Run:
+pip install fpdf
+to get the FPDF Lib for Python.
+
+Sagnika  -- Run using cp / classpath / class-path argument:
+java -cp itextpdf-5.5.13.3.jar <MainFileName>.java
+
+constructor chaining
+Dssm
+
+
+node ./<filename.js> 
+or simply click on the run button.
+
+for compiling in visual studio code terminal.
+
+
+buy and sell  -- command-- method execute 
+
+stock and quantity
+Broker - entity - recieves commands 
+StockMarket -- entity
+BSE 
+NSE 
+
+
+
+IStockMarket
+ICommand -- execute()
+
+1. create 2 inferface
