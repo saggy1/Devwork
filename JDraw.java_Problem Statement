@@ -1,0 +1,144 @@
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+
+//~? Shapes Library - abstract Shape with Line and Rectangle 
+abstract class Shape {
+  public Point start = new Point(0, 0);
+  public Point end = new Point(0, 0);
+
+  public abstract void draw(Graphics g);
+  public abstract Shape clone();
+}
+
+class Line extends Shape {
+
+  @Override
+  public void draw(Graphics g) {
+    g.drawLine(start.x, start.y, end.x, end.y);
+  }
+
+  @Override
+  public Shape clone() {
+    var shape =  new Line();
+    shape.start = start;
+    shape.end = end;
+    return shape;
+  }
+}
+
+class Rectangle extends Shape {
+
+  @Override
+  public void draw(Graphics g) {
+    g.drawRect(start.x, start.y, end.x-start.x, end.y-start.y);
+  }
+
+  @Override
+  public Shape clone() {
+    var shape = new Rectangle();
+    shape.start = start;
+    shape.end = end;
+    return shape;
+  }
+}
+
+class DrawCanvas extends Canvas {
+  List<Shape> shapeList;
+  DrawCanvas(List<Shape> shapeList) {
+    this.shapeList = shapeList;
+  }
+  @Override
+  public void paint(Graphics g) {
+    for (var shape : shapeList)
+      shape.draw(getGraphics());
+  }
+}
+
+
+//~* Windowing system - JFrame with Canvas to draw on 
+public class JDraw extends JFrame {
+
+  List<Shape> shapeList = new ArrayList<>();
+  Canvas canvas = new DrawCanvas(shapeList);
+  Shape currentShape = new Line();
+
+  JDraw() {
+    canvas.setBounds(10, 10, 800, 800);
+    this.add(canvas);
+    this.pack();
+
+    setupMouseListener();
+    setupMenus();
+  }
+
+  private void setupMenus() {
+    var menuBar = new JMenuBar();
+    var shapeMenu = new JMenu("Shape");
+
+    var lineMenuItem = new JMenuItem("Line");
+    lineMenuItem.addActionListener( e -> currentShape = new Line());
+
+    var rectangleMenuItem = new JMenuItem("Rectangle");
+    rectangleMenuItem.addActionListener( e -> currentShape = new Rectangle());
+
+    shapeMenu.add(lineMenuItem);
+    shapeMenu.add(rectangleMenuItem);
+
+    menuBar.add(shapeMenu);
+
+    this.setJMenuBar(menuBar);
+  }
+
+  private void setupMouseListener() {
+    this.canvas.addMouseListener(new MouseAdapter() {
+
+      @Override
+      public void mousePressed(MouseEvent e) {
+        currentShape.start = e.getPoint();
+        currentShape.end = e.getPoint();
+      }
+
+      @Override
+      public void mouseReleased(MouseEvent e) {
+        currentShape.end = e.getPoint();
+        var graphics = canvas.getGraphics();
+        currentShape.draw(graphics);
+
+        //~* Add the current shape to the list 
+        shapeList.add(currentShape);
+
+        //~% Prototype Design Pattern absolutely needed 
+        currentShape = currentShape.clone();
+      }
+    });
+
+    this.canvas.addMouseMotionListener(new MouseMotionAdapter() {
+
+      @Override
+      public void mouseDragged(MouseEvent e) {
+        var graphics = canvas.getGraphics();
+        graphics.setXORMode(Color.white);
+        currentShape.draw(graphics);
+        currentShape.end = e.getPoint();
+        currentShape.draw(graphics);
+      }
+    });
+  }
+
+  public static void main(String[] args) {
+    var jdraw = new JDraw();
+    jdraw.setVisible(true);
+  }
+}
